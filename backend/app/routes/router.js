@@ -14,6 +14,4 @@ router.use('/api/auth', require('./auth.routes'));
 router.use('/api/user', require('./user.routes'));
 
 
-var roles = require('../config/utils')
-
 module.exports = router;

@@ -1,11 +1,10 @@
 'use strict';
 
 const _publics = {};
-const authConfig = require("../config/auth.config");
+
 
 var config = require('../config/config');
-var role = require('../config/utils');
-var jwt = require("jsonwebtoken");
+
 var bcrypt = require("bcryptjs");
 var getRawBody = require('raw-body')
 var pool = config.pool;
@@ -31,16 +30,17 @@ _publics.getRawBody = (req) => {
 
 
 
-_publics.singup = (userstr, role) => {
-  var user = JSON.parse(userstr);
-  var username = user.username;
+_publics.singup = (users) => {
+  var user = JSON.parse(users);
+  var firstname = user.firstname;
+  var lastname = user.lastname;
   var email = user.email;
   var password = bcrypt.hashSync(user.password, 8);
-  var id_role = role;
+
   return new Promise((resolve, reject) => {
     var message = "";
     var sql = "INSERT INTO users SET ? ";
-    const newMember = { username: username, email: email, password: password, id_role: id_role };
+    const newMember = { firstname: firstname, lastname: lastname, email: email, password: password };
     pool.getConnection(function (err, connection) {
       if (err) {
         reject(err);
@@ -58,7 +58,7 @@ _publics.singup = (userstr, role) => {
           }
           return resolve(message);
         } else {
-          sendEmail(email);
+          //sendEmail(email);
           message = { message: "user created ", id: result.insertId };
         }
         return resolve(message);
@@ -70,18 +70,18 @@ _publics.singup = (userstr, role) => {
 _publics.signin = (user) => {
 
   var member = JSON.parse(user);
-  var username = member.username
+  var email = member.email
   var userpassword = member.password;
   return new Promise((resolve, reject) => {
 
-    var sql = "select u.* , r.name as role from users u left join roles r on (r.id = u.id_role) where username=? ";
+    var sql = "select u.*  from users u  where email=? ";
     var message = "";
 
     pool.getConnection(function (err, connection) {
       if (err) {
         reject(err);
       }
-      connection.query(sql, [username], function (err, result) {
+      connection.query(sql, [email], function (err, result) {
         connection.release();
         if (err) {
           message = { message: "request failed" };
@@ -97,18 +97,11 @@ _publics.signin = (user) => {
             if (!password) {
               message = { message: "verify your password" }
             } else {
-              var token = jwt.sign({ id: user.id }, authConfig.secret, {
-                expiresIn: 86400 // 24 hours
-              });
-              message = { message: "user exist ", user: result[0], accessToken: token };
+
+              message = { message: "user exist ", user: result[0] };
             }
           }
 
-
-
-
-
-
         }
 
         return resolve(message);
@@ -117,44 +110,6 @@ _publics.signin = (user) => {
   });
 };
 
-_publics.signinFB = (user) => {
-
-  var member = JSON.parse(user);
-  var email = member.email
-  return new Promise((resolve, reject) => {
-
-    var sql = "select u.* , r.name as role from users u left join roles r on (r.id = u.id_role) where email=? ";
-    var message = "";
-
-    pool.getConnection(function (err, connection) {
-      if (err) {
-        reject(err);
-      }
-      connection.query(sql, [email], function (err, result) {
-        connection.release();
-        if (err) {
-          message = { message: "user not found " };
-          reject(err);
-        }
-
-
-        else {
-
-          var token = jwt.sign({ id: user.id }, authConfig.secret, {
-            expiresIn: 86400 // 24 hours
-          });
-
-          message = { message: "user exist ", user: result[0], accessToken: token };
-
-
-
-        }
-
-        return resolve(message);
-      });
-    });
-  });
-};
 
 function sendEmail(email) {
   return new Promise((resolve, reject) => {
