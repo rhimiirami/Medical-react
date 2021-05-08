@@ -1,0 +1,58 @@
+
+create table roles(
+id int(11) AUTO_INCREMENT,
+name varchar(255),
+PRIMARY KEY (id)
+);
+
+create table users(
+id int(11) AUTO_INCREMENT,
+username varchar(255),
+email varchar(255),
+password varchar(255),
+id_role int(11),
+PRIMARY KEY (id),
+FOREIGN KEY (id_role) REFERENCES roles(id)
+);
+
+create table tournoi(
+id int(11) AUTO_INCREMENT,
+title varchar(255),
+date_limit_insc Date,
+date_demarrage Date,
+nbr_place int(11),
+PRIMARY KEY (id)
+
+);
+
+
+create table participants(
+id int(11) AUTO_INCREMENT,
+id_user int(11) ,
+id_tournoi int(11) ,
+FOREIGN KEY (id_user) REFERENCES users(id),
+FOREIGN KEY (id_tournoi) REFERENCES tournoi(id),
+PRIMARY KEY (id)
+
+);
+
+ alter table users add unique (email) ;
+
+ alter table users add unique (email) ;
+
+ALTER TABLE tournoi
+ADD prime varchar(255);
+
+ ALTER TABLE tournoi
+ADD societe varchar(255);
+  
+   
+create table parties (
+id int(11) AUTO_INCREMENT,
+id_first_player int(11) ,
+id_second_player int(11) ,
+FOREIGN KEY (id_first_player) REFERENCES participants(id),
+FOREIGN KEY (id_second_player) REFERENCES participants(id),
+PRIMARY KEY (id)
+
+);
