@@ -27,7 +27,15 @@ var role = require('../config/utils');
 
 
 
-
+router.post('/login', urlencodedParser, (req, res, next) =>
+authcontroller.getRawBody(req)
+.then(user => { 
+return authcontroller.login(user)
+})
+.then(resultat => {
+res.send(resultat);
+})
+.catch(next));
 
 router.post('/signin', urlencodedParser, (req, res, next) =>
 authcontroller.getRawBody(req)
@@ -44,11 +52,7 @@ res.send(resultat);
 router.post('/signup', urlencodedParser, (req, res, next) =>
 authcontroller.getRawBody(req)
 .then(user => {
-  res.payload.user=user
-  return RoleController.getRoleByName(role.ROLES.ROLE_USER)
-})
-.then(roleId => {
-    return authcontroller.singup(res.payload.user,roleId)
+    return authcontroller.singup(user)
 })
 .then(resultat => {
   res.send(resultat);

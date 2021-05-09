@@ -7,29 +7,29 @@ module.exports = {
   env: process.env.NODE_ENV || 'development',
   mediane: 6,
 
-  dbpool: mysql.createPool({
+    pool: mysql.createPool({
     connectionLimit: 100,
     host: 'localhost',
     port: 3306,
     user: 'root',
     password: 'root',
-    database: 'game',
+    database: 'medicale',
     debug: false,
     dateStrings: true
   }),
 
-  pool: new Pool({
-    user: 'ridha',
+  /* pool: new Pool({
+    user: 'root',
     //host: '18.220.209.238',
     host: 'localhost',
     //database: 'sagecity',
     database: 'medicale',
-    password: 'postgres',
+    password: 'root',
     //password: 'J2VgcQnEUNCjry88',
     port: 5432,
     max: 10,
     idleTimeoutMillis: 30000
-  }),
+  }), */
 
   /* transporter : nodemailer.createTransport({
     service: 'Gmail',

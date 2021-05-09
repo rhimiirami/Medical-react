@@ -140,7 +140,8 @@ _publics.updateRole = (req, role) => {
                 connection.query(sql, [nameRole], function (err, result) {
                 connection.release();
                 if (err) reject(err);
-                return resolve(result[0].id);
+                console.log(result)
+                return resolve(result[0]);
                 });
                 });
                 });

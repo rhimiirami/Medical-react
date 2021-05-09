@@ -2,7 +2,7 @@
 module.exports = {
  
   ROLES: {
-    ROLE_ADMIN: "admin",
-    ROLE_USER: "user"
+    ROLE_ADMIN: "ADMIN",
+    ROLE_USER: "USER"
   }
 }

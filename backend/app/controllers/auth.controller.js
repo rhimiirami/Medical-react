@@ -33,14 +33,14 @@ _publics.getRawBody = (req) => {
 
 _publics.singup = (userstr, role) => {
   var user = JSON.parse(userstr);
-  var username = user.username;
+  var firstname = user.firstname;
+  var lastname = user.lastname;
   var email = user.email;
   var password = bcrypt.hashSync(user.password, 8);
-  var id_role = role;
   return new Promise((resolve, reject) => {
     var message = "";
     var sql = "INSERT INTO users SET ? ";
-    const newMember = { username: username, email: email, password: password, id_role: id_role };
+    const newMember = { firstname: firstname,lastname:lastname, email: email, password: password};
     pool.getConnection(function (err, connection) {
       if (err) {
         reject(err);
@@ -48,18 +48,8 @@ _publics.singup = (userstr, role) => {
       connection.query(sql, newMember, function (err, result) {
         connection.release();
         if (err) {
-
-
-          if (err == "ER_DUP_ENTRY") {
-            message = { message: "username or email alerady used" + err };
-          } else {
-            message = { message: "failure" + err };
-
-          }
+            message = { message: "email alerady used" + err };
           return resolve(message);
-        } else {
-          sendEmail(email);
-          message = { message: "user created ", id: result.insertId };
         }
         return resolve(message);
       });
@@ -70,25 +60,25 @@ _publics.singup = (userstr, role) => {
 _publics.signin = (user) => {
 
   var member = JSON.parse(user);
-  var username = member.username
+  var email = member.email
   var userpassword = member.password;
   return new Promise((resolve, reject) => {
 
-    var sql = "select u.* , r.name as role from users u left join roles r on (r.id = u.id_role) where username=? ";
+    var sql = "select u.* , r.name as role from users u left join roles r on (r.id = u.id_role) where email=? ";
     var message = "";
 
     pool.getConnection(function (err, connection) {
       if (err) {
         reject(err);
       }
-      connection.query(sql, [username], function (err, result) {
+      connection.query(sql, [email], function (err, result) {
         connection.release();
         if (err) {
           message = { message: "request failed" };
           reject(err);
         } else {
           if (result.length == 0) {
-            message = { message: "username not found" };
+            message = { message: "email not found" };
           } else {
             var password = bcrypt.compareSync(
               userpassword,
@@ -185,6 +175,47 @@ function sendEmail(email) {
 
 
 
+
+
+/* ---------------------------------------------------------------------------------------------------------------------- */
+_publics.login = (user) => {
+  console.log('************'+user)
+  var member = JSON.parse(user);
+  var email = member.email
+  var userpassword = member.password;
+  return new Promise((resolve, reject) => {
+
+    var sql = "select u.* , r.name as role from users u left join roles r on (r.id = u.id_role) where email=? ";
+    var message = "";
+
+    pool.getConnection(function (err, connection) {
+      if (err) {
+        reject(err);
+      }
+      connection.query(sql, [email], function (err, result) {
+        connection.release();
+        if (err) {
+          message = { message: "request failed" };
+          reject(err);
+        } else {
+          if (result.length == 0) {
+            message = { message: "email not found" };
+          } else {
+            var password = bcrypt.compareSync(
+              userpassword,
+              result[0].password
+            );
+            if (!password) {
+              message = { message: "verify your password" }
+            }
+          }
+        }
+
+        return resolve(message);
+      });
+    });
+  });
+};
 
 
 
